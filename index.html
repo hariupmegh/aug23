@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel+Decorative:wght@400;700&family=Playfair+Display:ital,wght@0,400;1,400&family=Dancing+Script:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+    --text-gold: #f5d89e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Cormorant Garamond', serif; background: #0a0a0a; color: #fff; overflow-x: hidden; scroll-behavior: smooth; }
+
+  /* FLOATING PETALS */
+  .petal { position: fixed; top: -10%; color: #ffb7c5; user-select: none; z-index: 1000; pointer-events: none; animation: fall linear infinite; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(360deg); left: calc(var(--left) + 10%); } }
+
+  /* NAV */
+  nav { position: fixed; top: 0; width: 100%; z-index: 1000; display: flex; justify-content: center; gap: 2rem; padding: 1.5rem; background: rgba(0,0,0,0.2); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+  nav a { color: var(--text-gold); text-decoration: none; font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 600; transition: 0.4s; }
+  nav a:hover { color: #fff; text-shadow: 0 0 10px var(--text-gold); }
+
+  /* HERO */
+  #hero { height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, #3d1a00 0%, #0a0a0a 100%); perspective: 1000px; }
+  .temple-container { position: relative; padding: 4rem 2rem; border: 1px solid rgba(191, 149, 63, 0.3); background: rgba(20, 10, 5, 0.6); backdrop-filter: blur(5px); box-shadow: 0 0 100px rgba(0,0,0,0.8); text-align: center; }
+  .hero-names { font-family: 'Cinzel Decorative', serif; font-size: clamp(2rem, 6vw, 3.5rem); background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 15px rgba(191, 149, 63, 0.4)); line-height: 1.2; }
+
+  /* CARDS GENERAL */
+  .event-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; margin-bottom: 3.5rem; overflow: hidden; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .event-card:hover { transform: translateY(-10px); border-color: rgba(245, 216, 158, 0.4); }
+  .visual-header { height: 200px; position: relative; display: flex; align-items: flex-end; padding: 25px; }
+  .card-body { padding: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .label { color: var(--text-gold); font-weight: 600; font-size: 0.8rem; letter-spacing: 1.5px; margin-bottom: 5px; }
+
+  /* SANGEET - SUNSET THEME */
+  .sangeet-header { background: linear-gradient(to bottom, rgba(0,0,0,0) 20%, rgba(74, 26, 26, 0.9)), linear-gradient(45deg, #ff512f, #f09819); }
+
+  /* MARRIAGE - PASTEL PINK THEME */
+  .marriage-card { background: #fffcfc; color: #5a4a4a; border: none; }
+  .marriage-header { background: linear-gradient(to bottom, rgba(253, 242, 242, 0), rgba(253, 242, 242, 1)), #fce4ec; }
+  .marriage-card .label { color: #d48a8a; }
+
+  /* RECEPTION - SHINY BLACK & SPARKLE */
+  .reception-card { background: linear-gradient(145deg, #1a1a1a, #000000); border: 1px solid rgba(252, 246, 186, 0.3); position: relative; }
+  .reception-header { background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1000&auto=format&fit=crop'); background-size: cover; }
+  .sparkle-container { position: absolute; inset: 0; pointer-events: none; }
+  .spark { position: absolute; background: white; border-radius: 50%; animation: twinkle var(--d) infinite; opacity: 0; }
+  @keyframes twinkle { 0%, 100% { opacity: 0; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } }
+
+  /* BUTTONS */
+  .btn-map { grid-column: span 2; margin-top: 10px; padding: 10px; text-decoration: none; border: 1px solid var(--text-gold); color: var(--text-gold); text-align: center; border-radius: 50px; font-size: 0.8rem; letter-spacing: 1px; transition: 0.3s; }
+  .btn-map:hover { background: var(--text-gold); color: #000; }
+  .marriage-card .btn-map { border-color: #d48a8a; color: #d48a8a; }
+  .marriage-card .btn-map:hover { background: #d48a8a; color: #fff; }
+
+  .reveal { opacity: 0; transform: translateY(30px); transition: 1s all ease; }
+  .reveal.active { opacity: 1; transform: translateY(0); }
+
+  /* COUNTDOWN */
+  .countdown { margin-top: 2rem; display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; }
+  .countdown-unit { min-width: 72px; padding: 0.9rem 0.6rem 0.7rem; border: 1px solid rgba(191, 149, 63, 0.35); background: rgba(10, 6, 2, 0.55); backdrop-filter: blur(4px); border-radius: 6px; position: relative; }
+  .countdown-unit::before { content: ''; position: absolute; inset: 0; border-radius: 6px; box-shadow: inset 0 0 20px rgba(191, 149, 63, 0.08); pointer-events: none; }
+  .countdown-value { font-family: 'Cinzel Decorative', serif; font-size: 1.75rem; font-weight: 700; background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; font-variant-numeric: tabular-nums; }
+  .countdown-label { margin-top: 0.4rem; font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-gold); opacity: 0.85; }
+  .countdown-message { margin-top: 1.25rem; font-family: 'Dancing Script', cursive; font-size: 1.4rem; color: var(--text-gold); }
+  @media (max-width: 480px) {
+    .countdown-unit { min-width: 60px; padding: 0.7rem 0.4rem 0.5rem; }
+    .countdown-value { font-size: 1.3rem; }
+    .countdown-label { font-size: 0.55rem; }
+  }
+
+  /* OUR STORY */
+  #story { padding: 100px 20px; max-width: 900px; margin: 0 auto; position: relative; }
+  .section-title { text-align: center; font-family: 'Cinzel Decorative', serif; font-size: clamp(1.75rem, 4vw, 2.5rem); background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; letter-spacing: 0.15em; }
+  .section-sub { text-align: center; font-family: 'Dancing Script', cursive; color: var(--text-gold); font-size: 1.4rem; margin-bottom: 3.5rem; opacity: 0.9; }
+  .story-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(191, 149, 63, 0.25); border-radius: 24px; padding: 3rem 2.25rem; position: relative; overflow: hidden; }
+  .story-card::before { content: '❦'; position: absolute; top: 18px; right: 22px; color: var(--text-gold); opacity: 0.35; font-size: 1.4rem; }
+  .story-p { font-size: 1.15rem; line-height: 1.9; color: #e9dfcf; margin-bottom: 1.25rem; font-style: italic; }
+  .story-p .accent { font-family: 'Dancing Script', cursive; font-style: normal; color: var(--text-gold); font-size: 1.45rem; }
+  .story-meta { display: flex; justify-content: center; gap: 2.5rem; flex-wrap: wrap; margin-top: 2rem; padding-top: 1.75rem; border-top: 1px solid rgba(191, 149, 63, 0.18); }
+  .story-meta div { text-align: center; }
+  .story-meta .label { color: var(--text-gold); letter-spacing: 0.2em; font-size: 0.7rem; margin-bottom: 0.35rem; }
+  .story-meta .value { font-family: 'Cinzel Decorative', serif; font-size: 1.1rem; color: #fff; }
+
+  /* GALLERY */
+  #gallery { padding: 100px 20px 120px; max-width: 1100px; margin: 0 auto; }
+  .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+  .photo-tile { position: relative; aspect-ratio: 1 / 1; border-radius: 14px; overflow: hidden; border: 1px solid rgba(191, 149, 63, 0.25); background: rgba(255, 255, 255, 0.03); cursor: pointer; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.5s; }
+  .photo-tile img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.8s ease; }
+  .photo-tile:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.6); border-color: rgba(245, 216, 158, 0.55); }
+  .photo-tile:hover img { transform: scale(1.08); }
+  .photo-tile.placeholder { display: flex; align-items: center; justify-content: center; border-style: dashed; color: var(--text-gold); opacity: 0.55; font-family: 'Dancing Script', cursive; font-size: 1.3rem; text-align: center; padding: 1rem; }
+
+  /* LIGHTBOX */
+  .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 2rem; }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 92vw; max-height: 88vh; border-radius: 8px; box-shadow: 0 0 60px rgba(191, 149, 63, 0.25); }
+  .lightbox-close { position: absolute; top: 24px; right: 28px; color: var(--text-gold); font-size: 2rem; background: none; border: none; cursor: pointer; line-height: 1; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#hero">Home</a>
+  <a href="#story">Our Story</a>
+  <a href="#events">Events</a>
+  <!-- <a href="#gallery">Photos</a>>> -->
+</nav>
+
+<section id="hero">
+  <div class="temple-container reveal" id="parallax-card">
+    <div style="font-size: 2.5rem; margin-bottom: 1rem;"></div>
+    <p style="letter-spacing: 0.4em; color: #c8701a; font-size: 0.8rem; text-transform: uppercase;">Auspicious Beginning</p>
+    <h1 class="hero-names">Sreehari <br><span style="font-family:'Dancing Script'; font-size:2.5rem; -webkit-text-fill-color: var(--text-gold);">&</span><br> Meghna</h1>
+    <p style="font-size: 1.2rem; font-style: italic; color: var(--text-gold); margin-top: 1.5rem;">23 . 08 . 2026</p>
+    <div class="countdown" id="countdown" aria-live="polite">
+      <div class="countdown-unit"><div class="countdown-value" id="cd-days">--</div><div class="countdown-label">Days</div></div>
+      <div class="countdown-unit"><div class="countdown-value" id="cd-hours">--</div><div class="countdown-label">Hours</div></div>
+      <div class="countdown-unit"><div class="countdown-value" id="cd-minutes">--</div><div class="countdown-label">Minutes</div></div>
+      <div class="countdown-unit"><div class="countdown-value" id="cd-seconds">--</div><div class="countdown-label">Seconds</div></div>
+    </div>
+    <p class="countdown-message" id="cd-message"></p>
+
+  </div>
+</section>
+
+<section id="story">
+  <h2 class="section-title reveal">Our Story</h2>
+  <p class="section-sub reveal">how it all began</p>
+  <div class="story-card reveal">
+    <p class="story-p">It started in the hallways of <span class="accent">Bhavans Kuwait</span> — a school uniform, a shared classroom, and two hearts that didn't yet know they belonged to the same story.</p>
+    <p class="story-p">Somewhere between school bells and stolen glances, friendship slipped quietly into something deeper. Since <span class="accent">2017</span>,every late-night calls, every little good morning has stitched us closer together.</p>
+    <p class="story-p">Nine years, countless memories, and one forever promise later — we're finally ready to say the words we've always known to be true. 💛</p>
+    <div class="story-meta">
+      <div><p class="label">WHERE</p><p class="value">Bhavans, Kuwait</p></div>
+      <div><p class="label">SINCE</p><p class="value">2017</p></div>
+      
+    </div>
+  </div>
+</section>
+
+<section id="events" style="padding: 100px 20px; max-width: 800px; margin: 0 auto;">
+  
+  <div class="event-card reveal">
+    <div class="visual-header sangeet-header">
+       <div>
+          <h3 style="font-family: 'Cinzel Decorative'; font-size: 2rem; color: #fff;">Sangeet Night</h3>
+          <p style="opacity: 0.9; font-style: italic;">"Join us for an evening of music and dance as the sun sets"</p>
+       </div>
+    </div>
+    <div class="card-body">
+      <div><p class="label">WHEN</p><p>21 Aug, 5:30 PM</p></div>
+      <div><p class="label">WHERE</p><p>Udaya Resort</p><p style="font-size: 0.8rem; opacity: 0.6;">Yakara,Palakkad</p></div>
+      <div style="grid-column: span 2; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 15px;">
+        <p><strong>Dress Code:</strong> Sunset Hues</p>
+      </div>
+      <a href="https://maps.google.com/?q=Udaya+Resort+Yakara" target="_blank" class="btn-map">📍 VIEW LOCATION</a>
+    </div>
+  </div>
+
+  <div class="event-card reveal marriage-card">
+    <div class="visual-header marriage-header">
+       <div>
+          <h3 style="font-family: 'Cinzel Decorative'; font-size: 2rem; color: #8b5e5e;">The Marriage</h3>
+          <p style="opacity: 0.8; font-style: italic;">"Witness our sacred union in the heart of Guruvayur."</p>
+       </div>
+    </div>
+    <div class="card-body">
+      <div><p class="label">WHEN</p><p>23 Aug, 11-11:30 AM</p></div>
+      <div><p class="label">WHERE</p><p>Sabari Hall,Gokulam Park</p><p style="font-size: 0.8rem; opacity: 0.6;">Guruvayur</p></div>
+      <a href="https://maps.google.com/?q=Gokulam+Park+Guruvayur" target="_blank" class="btn-map">📍 VIEW LOCATION</a>
+    </div>
+  </div>
+
+  <div class="event-card reveal reception-card">
+    <div class="sparkle-container" id="reception-sparks"></div>
+    <div class="visual-header reception-header">
+       <div style="z-index: 2;">
+          <h3 style="font-family: 'Cinzel Decorative'; font-size: 2rem; color: #fcf6ba; text-shadow: 0 0 15px rgba(252,246,186,0.5);">Reception Night</h3>
+          <p style="opacity: 0.9; font-style: italic;">"Let's celebrate our first evening as Mr. & Mrs. with a night of glamour."</p>
+       </div>
+    </div>
+    <div class="card-body" style="position: relative; z-index: 2;">
+      <div><p class="label">WHEN</p><p>24 Aug, 5:00 PM Onwards</p></div>
+      <div><p class="label">WHERE</p><p>Alva Convention Center</p><p style="font-size: 0.8rem; opacity: 0.6;">Pathiripala, Palakkad</p></div>
+      <a href="https://maps.google.com/?q=Alva+Convention+Center+Pathiripala" target="_blank" class="btn-map" style="border-color: #fcf6ba; color: #fcf6ba;">📍 VIEW LOCATION</a>
+    </div>
+  </div>
+
+</section>
+
+<section id="gallery">
+  <h2 class="section-title reveal">Moments Collected</h2>
+  <p class="section-sub reveal"></p>
+  <div class="photo-grid reveal" id="photo-grid">
+    <div class="photo-tile"><img src="images/IMG_7337.JPG" alt=""></div>
+    <div class="photo-tile"><img src="images/IMG_3622.jpg" alt=""></div>
+    <div class="photo-tile"><img src="images/ABY01324.jpg" alt=""></div>
+    <div class="photo-tile"><img src="images/PMU03703.jpg" alt=""></div>
+    
+  </div>
+</section>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-label="Photo viewer">
+  <button class="lightbox-close" id="lightbox-close" aria-label="Close">×</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+  // Parallax
+  const card = document.getElementById('parallax-card');
+  document.addEventListener('mousemove', (e) => {
+    let xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+    let yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+    card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+  });
+
+  // Reveal
+  function reveal() {
+    var reveals = document.querySelectorAll(".reveal");
+    reveals.forEach(r => {
+      var windowHeight = window.innerHeight;
+      var elementTop = r.getBoundingClientRect().top;
+      if (elementTop < windowHeight - 100) r.classList.add("active");
+    });
+  }
+  window.addEventListener("scroll", reveal);
+  reveal();
+
+  // Petals
+  function createPetal() {
+    const petal = document.createElement('div');
+    petal.innerHTML = '🌸';
+    petal.classList.add('petal');
+    petal.style.left = Math.random() * 100 + 'vw';
+    petal.style.setProperty('--left', Math.random() * 20 + '%');
+    petal.style.animationDuration = Math.random() * 3 + 7 + 's';
+    petal.style.fontSize = Math.random() * 10 + 10 + 'px';
+    document.body.appendChild(petal);
+    setTimeout(() => petal.remove(), 10000);
+  }
+  setInterval(createPetal, 600);
+
+  // Sparks for Reception
+  const sparkContainer = document.getElementById('reception-sparks');
+  for (let i = 0; i < 30; i++) {
+    const spark = document.createElement('div');
+    spark.className = 'spark';
+    spark.style.left = Math.random() * 100 + '%';
+    spark.style.top = Math.random() * 100 + '%';
+    spark.style.width = Math.random() * 4 + 'px';
+    spark.style.height = spark.style.width;
+    spark.style.setProperty('--d', (Math.random() * 3 + 2) + 's');
+    spark.style.animationDelay = Math.random() * 5 + 's';
+    sparkContainer.appendChild(spark);
+  }
+
+  // Live Countdown to the wedding (23 Aug 2026, 11:00 AM IST)
+  const weddingDate = new Date('2026-08-23T11:00:00+05:30').getTime();
+  const pad = (n) => String(n).padStart(2, '0');
+  const elDays = document.getElementById('cd-days');
+  const elHours = document.getElementById('cd-hours');
+  const elMinutes = document.getElementById('cd-minutes');
+  const elSeconds = document.getElementById('cd-seconds');
+  const elMessage = document.getElementById('cd-message');
+
+  function updateCountdown() {
+    const diff = weddingDate - Date.now();
+    if (diff <= 0) {
+      elDays.textContent = '00';
+      elHours.textContent = '00';
+      elMinutes.textContent = '00';
+      elSeconds.textContent = '00';
+      elMessage.textContent = 'The day has arrived 💐';
+      return false;
+    }
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+    elDays.textContent = pad(days);
+    elHours.textContent = pad(hours);
+    elMinutes.textContent = pad(minutes);
+    elSeconds.textContent = pad(seconds);
+    return true;
+  }
+  if (updateCountdown()) {
+    const timer = setInterval(() => {
+      if (!updateCountdown()) clearInterval(timer);
+    }, 1000);
+  }
+
+  // Lightbox for photo gallery
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const lightboxClose = document.getElementById('lightbox-close');
+  document.getElementById('photo-grid').addEventListener('click', (e) => {
+    const tile = e.target.closest('.photo-tile');
+    if (!tile) return;
+    const img = tile.querySelector('img');
+    if (!img) return;
+    lightboxImg.src = img.src;
+    lightboxImg.alt = img.alt || '';
+    lightbox.classList.add('open');
+  });
+  const closeLightbox = () => { lightbox.classList.remove('open'); lightboxImg.src = ''; };
+  lightboxClose.addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && lightbox.classList.contains('open')) closeLightbox(); });
+</script>
+
+</body>
+</html>
